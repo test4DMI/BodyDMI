@@ -25,7 +25,8 @@ example use:     ShowAmaresfit(V10570.Dyn4.spectradata,V10570.Dyn4.DMI_AMARES_Re
 
 6- Generate spectra overlay (Axial and Coronal): showAxial2Hspectra or showCoronal2Hspectra  
 example use:     showAxial2Hspectra(V10570.Dyn6.PhasedCombspectraZF,FH_slice,V10570.Dyn6.xaxiszerofill) 
-                 showCoronal2Hspectra(V10570.Dyn6.PhasedCombspectraZF,AP_slice,V10570.Dyn6.xaxiszerofill)
+                 showCoronal2Hspectra(V10570.Dyn6.PhasedCombspectraZF,AP_slice,V10570.Dyn6.xaxiszerofill)  
+                 
 Once the figure is loaded, which may take couple of seconds, copy the figure and paste it to a PPT slide.  
 Remove the background color and resize the image with respect to the background image.   
 ![image](https://github.com/ayhangursan/BodyDMI/assets/30341974/16a52478-2950-45f1-b346-a521ce416629)
