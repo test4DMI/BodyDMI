@@ -11,15 +11,14 @@ fns=fns(find(cell2mat(cellfun(@(x)any(~isnan(x)),fns,'UniformOutput',false)))); 
 Parameters=eval(strcat('Dataset.',string(fns(1)),'.Param;'));
 inputCSI=Parameters.CSIdims;
 FIDMatrix=zeros([Parameters.NP inputCSI numel(fns)]);
+FIDMatrix_DN=zeros([Parameters.NP inputCSI numel(fns)]);
 for k=1:size(fns,1)
     if isempty(Parameters.Index.channelIndex)
         FIDMatrix(:,:,:,:,k)=eval(strcat('Dataset.',string(fns(k)),'.fftfiddata;'));
         FIDMatrix_DN(:,:,:,:,k)=eval(strcat('Dataset.',string(fns(k)),'.fftfiddataDN;'));
-
     else
         FIDMatrix(:,:,:,:,k)=eval(strcat('Dataset.',string(fns(k)),'.RoemerComb;'));
-        FIDMatrix_DN(:,:,:,:,k)=eval(strcat('ifft(ifftshift(Dataset.',string(fns(k)),'.RoemerCombDN./Parameters.FirstOrdPhaseFunct,1),[],1);'));
-
+        FIDMatrix_DN(:,:,:,:,k)=eval(strcat('Dataset.',string(fns(k)),'.RoemerCombDN;'));
     end
 end
 FreqOffset=4.7;
@@ -118,7 +117,7 @@ show_spectra(0)
             ppmaxis=xaxis;
             FirstOrdPhase=Parameters.FirstOrdPhaseFunct;
         end
-       
+
         for k=1:size(SpectraMatrix,5)
             if isequal(size(SpectraMatrix,5),1)
                 subplot(3,5,[3:5 8:10 12:15]);
