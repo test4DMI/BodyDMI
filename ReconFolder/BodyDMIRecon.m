@@ -137,6 +137,9 @@ else
     dataset.spectradata=fftshift(fft(dataset.fftfiddata,[],1),1);  %Save memory
 end
 disp('Spatial FFT applied.')
+
+    removedfield='avgrawdata';dataset=rmfield(dataset,removedfield);disp('Removing avgrawdata for clearing memory.')
+    removedfield='data'; dataset=rmfield(dataset,removedfield);disp('Removing RAW data for clearing memory.')
 %%
 if ~isempty(dataset.Param.Index.channelIndex)
     [dataset.DecorrelatedSignal, dataset.DenoisedDecorrelatedSignal]=DecorrDenoise(dataset.fftfiddata,dataset.NoiseCov,dataset.Param);
@@ -164,8 +167,6 @@ if ~isempty(dataset.Param.Index.channelIndex)
     dataset.CombspectraApodizedZF=fftshift(fft(padarray(Phase31PSpectraQ2(dataset.RoemerComb.*dataset.Param.apodfunc,dataset.Param),[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Phase and apply spectral FFT Roemer
     dataset.DNspectraZF=fftshift(fft(padarray(Phase31PSpectraQ2(dataset.DN_RoemerComb,dataset.Param),[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Phase and apply spectral FFT Roemer
 
-    removedfield='avgrawdata';dataset=rmfield(dataset,removedfield);disp('Removing avgrawdata for clearing memory.')
-    removedfield='data';% dataset=rmfield(dataset,removedfield);disp('Removing RAW data for clearing memory.')
     %% SNR estimation on raw data(no denoising)
     WaterFreq=0;
     dataset.noisewindow=find(dataset.xaxis+WaterFreq>15 & dataset.xaxis+WaterFreq<25);

@@ -81,7 +81,7 @@ addlistener(CloseGUI, 'Value', 'PostSet', @callbackfn4);
     end
 
     function callbackfn2(source, eventdata)
-        DrawROI          = boolean(get(eventdata.AffectedObject, 'Value'));
+        DrawROI          = get(eventdata.AffectedObject, 'Value');
         if DrawROI==1
             DCM_Mask.DrawnROI=drawfreehand(DCM_Mask.ax(1),'Deletable',1);
             DCM_Mask.DrawnROImask(:,:,round(SliderH1.Value))=imresize(createMask(DCM_Mask.DrawnROI),[Parameters.CSIdims(1) Parameters.CSIdims(2)]);
@@ -92,18 +92,14 @@ addlistener(CloseGUI, 'Value', 'PostSet', @callbackfn4);
     end
 
     function callbackfn3(source, eventdata)
-        StopDrawROI          = boolean(get(eventdata.AffectedObject, 'Value'));
+        StopDrawROI          = get(eventdata.AffectedObject, 'Value');
         if StopDrawROI==1
             ROICheck.Value=0;
             assignin("base",'DCM_Mask',DCM_Mask)
-
         end
     end
 
     function callbackfn4(source, eventdata)
-        CloseGUI          = boolean(get(eventdata.AffectedObject, 'Value'));
-        %         save ('DrawnMask.mat','DCM_Mask.DrawnROImask')
-        %         whos('-file','DrawnMask.mat')
         close all;
     end
 

@@ -23,7 +23,6 @@ for k=1:size(fns,1)
             eval(['writematrix(MetabTemp(find(',DatasetName,'.DCM_Mask.DrawnROImask>0)).'',''',filename,''',''Sheet'',[''Metabolite-'',num2str(metabnum)],''Range'',''A',num2str(k+1),''')'])%
             MetabTemp=MetabAmpMap(:,:,:,metabnum,k)./MetabAmpMap(:,:,:,end,1);
             eval(['writematrix(MetabTemp(find(',DatasetName,'.DCM_Mask.DrawnROImask>0)).'',''',filenameNormalized,''',''Sheet'',[''Metabolite-'',num2str(metabnum)],''Range'',''A',num2str(k+1),''')'])%
-
         end
     end
 end
