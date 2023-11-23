@@ -13,6 +13,7 @@ After setting up you can start with running Reconpackage at the folder you would
   This package fits MR signal using a prior knowledge file prepared before and saved under QuantifyFolder. There is also an option to fit denoised data.  
   Also, fitted amplitudes are saved to an excel file under the current folder directory.  
 4-Show_Dicom_Spectra -> Plot (dynamic) spectra, fits and residual from voxel of choice
+example use: Show_Dicom_Spectra(V1111)
   This GUI allows plotting one voxel from the 3D dataset together with dynamics. Options to apodize(in Hertz) and zerofill (to times of original number of points) are given in the GUI.  
   If you would like to include total signal fit and the residual in the plot please set 'Show Fit'to 1.  
   
