@@ -1,10 +1,11 @@
-function ShowSingleFit(inputspec,DMIResults,row,col,slice,xaxis,Parameters,Referenceloc)
+function ShowSingleFit(inputFID,DMIResults,row,col,slice,xaxis,Parameters,Referenceloc)
 
 fitResults=DMIResults{row,col,slice};
 time=Parameters.time+Parameters.TE;
-dims=size(inputspec);
+dims=size(inputFID);
 CSIdims=dims(2:end);
 FirstOrdPhaseFunct=Parameters.FirstOrdPhaseFunct;
+inputspec= fftshift(fft(inputFID(:,row,col,slice),[],1),1);
 if ~isequal(numel(xaxis),numel(FirstOrdPhaseFunct))% If zerofilled spectra is displayed, change first orfer phase correction.
 FirstOrdPhaseFunct=Parameters.FirstOrdPhaseFunctZF;
 end
@@ -17,10 +18,9 @@ if ~isequal(numel(xaxis),numel(time)) % If zerofilled spectra is displayed, zero
 Resultfid=padarray(Resultfid,[(numel(xaxis)-numel(time)) 0],0,'post');
 end
 figure('WindowState','maximized')
-sig=inputspec(:,row,col,slice).*exp(-1i*((fitResults.phase(1)/180)*pi));%.*FirstOrdPhaseFunct;
+sig=inputspec.*exp(-1i*((fitResults.phase(1)/180)*pi));%.*FirstOrdPhaseFunct;
 
 fit=fftshift(fft(sum(Resultfid,2))).*FirstOrdPhaseFunct;
-sum(Resultfid,2)
 plot(xaxis-Freqshift,real(sig),'k','LineWidth',2)%Raw
 hold on;
 % plot(xaxis-Freqshift,imag(sig),'--k','LineWidth',2)%Imaginary Raw
@@ -31,7 +31,7 @@ plot(xaxis-Freqshift,real(fit),'b','LineWidth',2)%Fit
 plot(xaxis-Freqshift,real(sig-fit),'r','LineWidth',2)%Residual
 % plot(xaxis-Freqshift,imag(sig-fit),'--r','LineWidth',2)%Imaginary Residual
 
-plotshift1=max(real(inputspec(:,row,col,slice).*FirstOrdPhaseFunct));
+plotshift1=max(real(inputspec.*FirstOrdPhaseFunct));
 plotshift=plotshift1;
 
 for mm=1:size(Resultfid,2)

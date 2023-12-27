@@ -1,6 +1,6 @@
-function showCoronal2Hspectra(inpSPECTRA,AP,ppm_axis)
+function showCoronal2Hspectra(inputFID,AP,ppm_axis)
 
-SPECTRA=permute(flip(squeeze(inpSPECTRA(:,AP,:,:)),3),[1 3 2]);
+SPECTRA=fftshift(fft(permute(flip(squeeze(inputFID(:,AP,:,:)),3),[1 3 2]),[],1),1);
 % Data is flipped in FH so that it will align with coronal images
 % Philips CSI data slices goes from feet to head 
 specmax=max(real(SPECTRA),[],'all');

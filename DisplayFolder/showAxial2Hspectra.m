@@ -1,6 +1,6 @@
-function showAxial2Hspectra(inpSPECTRA,FH,ppm_axis)
+function showAxial2Hspectra(inputFID,FH,ppm_axis)
 
-SPECTRA=inpSPECTRA(:,:,:,FH);
+SPECTRA=fftshift(fft(inputFID(:,:,:,FH),[],1),1);
 specmax=max(real(SPECTRA),[],'all');
 % zlimitwindow=find(ppm_axis>0 & ppm_axis<10);
 % zlimitwindow=find(ppm_axis>-20 & ppm_axis<20);% For 31 P

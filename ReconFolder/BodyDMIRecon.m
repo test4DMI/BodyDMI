@@ -134,7 +134,6 @@ else
     dataset.avgrawdata=flip(dataset.avgrawdata,3);disp('Fliped in RL')
     dataset.fftfiddata=circshift(PhaseSpectra(SpatialFFT(squeeze(dataset.avgrawdata)),dataset.Param),-1,2);
     dataset.fftfiddata=Phase31PSpectraQ2(dataset.fftfiddata,dataset.Param);
-    dataset.spectradata=fftshift(fft(dataset.fftfiddata,[],1),1);  %Save memory
 end
 disp('Spatial FFT applied.')
 
@@ -145,10 +144,7 @@ if ~isempty(dataset.Param.Index.channelIndex)
     [dataset.DecorrelatedSignal, dataset.DenoisedDecorrelatedSignal]=DecorrDenoise(dataset.fftfiddata,dataset.NoiseCov,dataset.Param);
     % Phase each spectra
     dataset.PhasedFID=Phase31PSpectraQ2(dataset.DecorrelatedSignal,dataset.Param);
-    dataset.PhasedSPEC=fftshift(fft(dataset.PhasedFID,[],1),1).*dataset.Param.FirstOrdPhaseFunct;
-
     dataset.DNPhasedFID=Phase31PSpectraQ2(dataset.DenoisedDecorrelatedSignal,dataset.Param);
-    dataset.DNPhasedSPEC=fftshift(fft(dataset.DNPhasedFID,[],1),1).*dataset.Param.FirstOrdPhaseFunct;
 
     disp('Automatic phasing applied.')
     % Channel combination
@@ -156,16 +152,11 @@ if ~isempty(dataset.Param.Index.channelIndex)
     dataset.Combspectra=fftshift(fft(PhaseSpectra(dataset.RoemerComb,dataset.Param),[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Phase and apply spectral FFT Roemer
     dataset.RoemerCombDN=PCA_CSIdenoising_V2_KM(dataset.RoemerComb,5,dataset.Param);
 
-    dataset.PhasedFID=PhaseSpectra(dataset.RoemerComb,dataset.Param);
-    dataset.PhasedCombspectra=fftshift(fft(dataset.PhasedFID,[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Phase and apply spectral FFT Roemer
-    dataset.PhasedCombspectraZF=fftshift(fft(padarray(dataset.PhasedFID,[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Zerofill and apply spectral FFT Roemer
-
     [dataset.DN_RoemerComb, dataset.DNRoemerSens_map]=RoemerEqualNoise_withmap_input(dataset.DNPhasedFID,0,diag(ones(dataset.Param.dims(dataset.Param.Index.channelIndex),1)),dataset.Param.Index.channelIndex);        disp('Roemer equeal noise channel combination applied.')
-    dataset.DNCombspectra=fftshift(fft(Phase31PSpectraQ2(dataset.DN_RoemerComb,dataset.Param),[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Phase and apply spectral FFT Roemer
+%     dataset.DNCombspectra=fftshift(fft(Phase31PSpectraQ2(dataset.DN_RoemerComb,dataset.Param),[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Phase and apply spectral FFT Roemer
 
     % dataset.CombspectraApodizedZF=fftshift(fft(cat(1,Phase31PSpectraQ2(dataset.RoemerComb.*dataset.Param.apodfunc,dataset.Param),zeros(size(dataset.RoemerComb))),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Phase and apply spectral FFT Roemer
-    dataset.CombspectraApodizedZF=fftshift(fft(padarray(Phase31PSpectraQ2(dataset.RoemerComb.*dataset.Param.apodfunc,dataset.Param),[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Phase and apply spectral FFT Roemer
-    dataset.DNspectraZF=fftshift(fft(padarray(Phase31PSpectraQ2(dataset.DN_RoemerComb,dataset.Param),[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Phase and apply spectral FFT Roemer
+%     dataset.CombspectraApodizedZF=fftshift(fft(padarray(Phase31PSpectraQ2(dataset.RoemerComb.*dataset.Param.apodfunc,dataset.Param),[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Phase and apply spectral FFT Roemer
 
     %% SNR estimation on raw data(no denoising)
     WaterFreq=0;
@@ -180,10 +171,10 @@ else
     WaterFreq=0;
     dataset.noisewindow=find(dataset.xaxis+WaterFreq>15 & dataset.xaxis+WaterFreq<25);
     dataset.waterwindow=find(dataset.xaxis+WaterFreq>3.8 & dataset.xaxis+WaterFreq<5.7);
-    dataset.noisemap=squeeze(std(real(dataset.spectradata(dataset.noisewindow,:,:,:)))); % Using real part of the spectra to estimate noise in accordance with MRS consensus paper(doi:10.1002/nbm.4347)i
-    dataset.SNR=squeeze(max(real(dataset.spectradata(dataset.waterwindow,:,:,:)),[],1))./dataset.noisemap;
-    dataset.PhasedCombspectraZF=fftshift(fft(padarray(dataset.fftfiddata.*dataset.Param.apodfunc,[dataset.Param.NP*(ZerofillFactor-1) 0 0 0],0,'post'),[],1),1).*dataset.Param.FirstOrdPhaseFunctZF; % Zerofill and apply spectral FFT Roemer
-    [~, dataset.Referenceloc]=SpectralFrequencyAlignment(real(dataset.spectradata.*dataset.Param.FirstOrdPhaseFunct),dataset.xaxis,dataset.Param,options.ReferenceLocation);
+    temp=fftshift(fft(dataset.fftfiddata,[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Apply spectral FFT to calculate SNR
+    dataset.noisemap=squeeze(std(real(temp(dataset.noisewindow,:,:,:)))); % Using real part of the spectra to estimate noise in accordance with MRS consensus paper(doi:10.1002/nbm.4347)i
+    dataset.SNR=squeeze(max(real(temp(dataset.waterwindow,:,:,:)),[],1))./dataset.noisemap;
+    [~, dataset.Referenceloc]=SpectralFrequencyAlignment(real(temp),dataset.xaxis,dataset.Param,options.ReferenceLocation);
 end
 end
 
