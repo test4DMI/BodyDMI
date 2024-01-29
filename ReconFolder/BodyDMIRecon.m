@@ -125,7 +125,6 @@ if ~isempty(dataset.Param.Index.channelIndex)
     dataset.avgrawdata=flip(dataset.avgrawdata,4);disp('Fliped in RL')
     for n=1:size(dataset.avgrawdata,dataset.Param.Index.channelIndex)
         dataset.fftfiddata(:,n,:,:,:)=circshift(PhaseSpectra(SpatialFFT(squeeze(dataset.avgrawdata(:,n,:,:,:))),dataset.Param),-1,2);
-        dataset.spectradata(:,n,:,:,:)=fftshift(fft(dataset.fftfiddata(:,n,:,:,:),[],1),1);  %Save memory
     end
 else
     dataset.avgrawdata=permute(dataset.avgrawdata,[1 3 2 4])*1e3;disp('Signal rescaled with 1e3, fix amount!')
@@ -141,10 +140,9 @@ disp('Spatial FFT applied.')
     removedfield='data'; dataset=rmfield(dataset,removedfield);disp('Removing RAW data for clearing memory.')
 %%
 if ~isempty(dataset.Param.Index.channelIndex) % if multichannel dataset
-    [dataset.DecorrelatedSignal, dataset.DenoisedDecorrelatedSignal]=DecorrDenoise(dataset.fftfiddata,dataset.NoiseCov,dataset.Param);
+    [dataset.DecorrelatedSignal, ~]=DecorrDenoise(dataset.fftfiddata,dataset.NoiseCov,dataset.Param);
     % Phase each spectra
     dataset.PhasedFID=Phase31PSpectraQ2(dataset.DecorrelatedSignal,dataset.Param);
-    dataset.DNPhasedFID=Phase31PSpectraQ2(dataset.DenoisedDecorrelatedSignal,dataset.Param);
 
     disp('Automatic phasing applied.')
     % Channel combination
@@ -153,8 +151,11 @@ if ~isempty(dataset.Param.Index.channelIndex) % if multichannel dataset
 %     dataset.Combspectra=fftshift(fft(PhaseSpectra(dataset.RoemerComb,dataset.Param),[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Phase and apply spectral FFT Roemer
     dataset.RoemerCombDN=PCA_CSIdenoising_V2_KM(dataset.RoemerComb,5,dataset.Param); % First combined and then denoised.
 
-    [dataset.DN_RoemerComb, dataset.DNRoemerSens_map]=RoemerEqualNoise_withmap_input(dataset.DNPhasedFID,0,diag(ones(dataset.Param.dims(dataset.Param.Index.channelIndex),1)),dataset.Param.Index.channelIndex);        disp('Roemer equeal noise channel combination applied.')
+%     [dataset.DN_RoemerComb, dataset.DNRoemerSens_map]=RoemerEqualNoise_withmap_input(dataset.DNPhasedFID,0,diag(ones(dataset.Param.dims(dataset.Param.Index.channelIndex),1)),dataset.Param.Index.channelIndex);        disp('Roemer equeal noise channel combination applied.')
 %     dataset.DNCombspectra=fftshift(fft(Phase31PSpectraQ2(dataset.DN_RoemerComb,dataset.Param),[],1),1).*dataset.Param.FirstOrdPhaseFunct; % Phase and apply spectral FFT Roemer
+    removedfield='fftfiddata'; dataset=rmfield(dataset,removedfield);disp('Removing fftfiddata(multichannel before comb) data for clearing memory.')
+    removedfield='DecorrelatedSignal'; dataset=rmfield(dataset,removedfield);disp('Removing DecorrelatedSignal data for clearing memory.')
+    removedfield='PhasedFID'; dataset=rmfield(dataset,removedfield);disp('Removing PhasedFID(before comb) data for clearing memory.')
 
     %% SNR estimation on raw data(no denoising)
     % Currently SNR is not taken into account in any process, however it
