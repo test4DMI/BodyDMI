@@ -1,5 +1,9 @@
 function showAxial2Hspectra(inputFID,FH,ppm_axis)
 
+if ~isequal(size(inputFID,1),numel(ppm_axis))
+    inputFID=padarray(inputFID,[(numel(ppm_axis)-size(inputFID,1)) 0 0 0],0,'post');
+end
+size(inputFID)
 SPECTRA=fftshift(fft(inputFID(:,:,:,FH),[],1),1);
 specmax=max(real(SPECTRA),[],'all');
 % zlimitwindow=find(ppm_axis>0 & ppm_axis<10);
