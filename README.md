@@ -21,7 +21,7 @@ example use: Show_Dicom_Spectra(V1111)
 
 
 5-Show single voxel fit with seperate metabolite fits  
-example use:     ShowSingleFit(V10570.Dyn4.spectradata,V10570.Dyn4.DMI_AMARES_Results,AP,RL,FH,V10570.Dyn4.xaxis,V10570.Dyn4.Param,V10570.Dyn4.Referenceloc)  
+example use:     ShowSingleFit(V10570.Dyn4.fftfiddata,V10570.Dyn4.DMI_AMARES_Results,AP,RL,FH,V10570.Dyn4.xaxis,V10570.Dyn4.Param,V10570.Dyn4.Referenceloc)  
 ![image](https://github.com/ayhangursan/BodyDMI/assets/30341974/d76e724b-2f03-49b0-9507-9faf22f2c6dd)
 
 6- Generate spectra overlay (Axial and Coronal): showAxial2Hspectra or showCoronal2Hspectra  
