@@ -1,5 +1,9 @@
 function showCoronal2Hspectra(inputFID,AP,ppm_axis)
 
+if ~isequal(size(inputFID,1),numel(ppm_axis))
+    inputFID=padarray(inputFID,[(numel(ppm_axis)-size(inputFID,1)) 0 0 0],0,'post');
+end
+
 SPECTRA=fftshift(fft(permute(flip(squeeze(inputFID(:,AP,:,:)),3),[1 3 2]),[],1),1);
 % Data is flipped in FH so that it will align with coronal images
 % Philips CSI data slices goes from feet to head 
