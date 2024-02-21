@@ -17,7 +17,7 @@ function dataset=BodyDMIRecon(rawdata,options)
 % Notes
 %% Ayhan Gursan 2023, agursan@umcutrect.nl
 
-
+dataset.options = options;
 disp(strcat('Processing CSI data:',rawdata));
 
 % TE=1.49;% Echo time is hard coded
@@ -124,15 +124,17 @@ if ~isempty(dataset.Param.Index.channelIndex)
     dataset.avgrawdata=flip(dataset.avgrawdata,3);disp('Fliped in AP')
     dataset.avgrawdata=flip(dataset.avgrawdata,4);disp('Fliped in RL')
     for n=1:size(dataset.avgrawdata,dataset.Param.Index.channelIndex)
-        dataset.fftfiddata(:,n,:,:,:)=circshift(PhaseSpectra(SpatialFFT(squeeze(dataset.avgrawdata(:,n,:,:,:))),dataset.Param),-1,2);
+        dataset.fftfiddata(:,n,:,:,:)=circshift(PhaseSpectra(SpatialFFT(squeeze(dataset.avgrawdata(:,n,:,:,:))),dataset.Param),[0 options.VoxelShift]);
     end
+    disp(['Applied voxel shift(AP RL FH)=',num2str(options.VoxelShift)])
 else
     dataset.avgrawdata=permute(dataset.avgrawdata,[1 3 2 4])*1e3;disp('Signal rescaled with 1e3, fix amount!')
     dataset.Param.CSIdims=[dataset.Param.dims(dataset.Param.Index.kyIndex) dataset.Param.dims(dataset.Param.Index.kxIndex) dataset.Param.dims(dataset.Param.Index.kzIndex)];
     dataset.avgrawdata=flip(dataset.avgrawdata,2);disp('Fliped in AP')
     dataset.avgrawdata=flip(dataset.avgrawdata,3);disp('Fliped in RL')
-    dataset.fftfiddata=circshift(PhaseSpectra(SpatialFFT(squeeze(dataset.avgrawdata)),dataset.Param),-1,2);
+    dataset.fftfiddata=circshift(PhaseSpectra(SpatialFFT(squeeze(dataset.avgrawdata)),dataset.Param),[0 options.VoxelShift]);
     dataset.fftfiddata=Phase31PSpectraQ2(dataset.fftfiddata,dataset.Param);
+    disp(['Applied voxel shift(AP RL FH)=',num2str(options.VoxelShift)])
 end
 disp('Spatial FFT applied.')
 

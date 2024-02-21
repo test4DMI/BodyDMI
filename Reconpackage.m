@@ -64,6 +64,9 @@ for k=1:NumDynamics
             figure('Name','Coil array sensitivity map(Discarded coils are set to zero)','WindowState','maximized')
             imagescn(abs(permute(squeeze(options.Referencemap(:,:,:,round(size(options.Referencemap,4)/2))),[2 3 1])))
             disp('The channels used in reconstruction have changed.')
+        elseif~isequal(numel(options.VoxelShift),Dataset.Dyn1.options.VoxelShift)
+            eval(['Dataset.Dyn',num2str(k),'=BodyDMIRecon(''',DatasetDynName{k,1},''',options);'])
+            disp('Voxel shift change is applied.')
         else
             disp('No changes were made in channel selection.')
         end
@@ -87,21 +90,23 @@ if nargin < 2
     opt.Referencemap=0; % Default Roemer reference map. Zero inut generate map from the data itself.
 end
 if NumChannel == 1
-    prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):'};
+    prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):', 'Apply Voxel shift (AP RL FH)'};
     dlgtitle = 'BodyDMI - Acquisition parameter options';
     fieldsize = [1 90; 1 90];
-    definput = {'1.38','2750'};
+    definput = {'1.38','2750', '-1 0 0'};
     answers= inputdlg(prompt,dlgtitle,fieldsize,definput);
     opt.TE=str2double(answers{1});
     opt.BW=str2double(answers{2});
+    opt.VoxelShift=str2double(extract(answers{4}, digitsPattern));
 else
-    prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):','Channels to be use in Recon'};
+    prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):','Channels to be use in Recon', 'Apply Voxel shift (AP RL FH)'};
     dlgtitle = 'BodyDMI - Acquisition and Reconstruction parameter options';
-    fieldsize = [1 90; 1 90; 1 90];
-    definput = {'1.38','2750', num2str(1:NumChannel)};
+    fieldsize = [1 90; 1 90; 1 90; 1 90];
+    definput = {'1.38','2750', num2str(1:NumChannel), '-1 0 0'};
     answers= inputdlg(prompt,dlgtitle,fieldsize,definput);
     opt.TE=str2double(answers{1});
     opt.BW=str2double(answers{2});
     opt.UsedCh=str2double(extract(answers{3}, digitsPattern));
+    opt.VoxelShift=str2num(answers{4});
 end
 end
