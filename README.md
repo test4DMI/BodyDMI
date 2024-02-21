@@ -7,6 +7,7 @@ After setting up you can start with running Reconpackage at the folder you would
 
 1-Reconpackage -> To reconstruct (dynamic) 2H MRSI data  
     Reconstruction of 2H MRSI dataset either from a single channel or multi-channel acquisition. In the case of multi channel data, you will also be asked to provide a seperate noise scan.  
+    There will be an options pop-up window appearing to give you a change to remove unwanted coils or apply voxel shift. 
 2-MaskPackage -> To draw mask to set an VOI for AMARES fitting
     This script loads a dicom file, which contains axial T1w images to draw a mask on the region of interest for further analysis and faster quantification.  
 3-Quantifypackage -> To fit DMI signal with previously prepared priorknowledge file and save fitted amplitudes to an excel file
