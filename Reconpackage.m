@@ -54,6 +54,7 @@ for k=1:NumDynamics
         figure('Name','Coil array sensitivity map','WindowState','maximized')
         imagescn(abs(permute(squeeze(options.Referencemap(:,:,:,round(size(options.Referencemap,4)/2))),[2 3 1])))
         options=setDMIoptions(NumChannel, options);
+        disp('No changes were made in channel selection.')
         if ~isequal(numel(options.UsedCh),NumChannel)
             tempReferencemap = zeros(size(options.Referencemap));
             tempReferencemap(options.UsedCh,:) = options.Referencemap(options.UsedCh,:);
@@ -63,7 +64,7 @@ for k=1:NumDynamics
             options.Referencemap=Dataset.Dyn1.RoemerSens_map;disp('First dynamic is used as baseline/Coil reference scan.')
             figure('Name','Coil array sensitivity map(Discarded coils are set to zero)','WindowState','maximized')
             imagescn(abs(permute(squeeze(options.Referencemap(:,:,:,round(size(options.Referencemap,4)/2))),[2 3 1])))
-
+            disp('The channels used in reconstruction have changed.')
         end
     end
 end
