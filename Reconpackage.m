@@ -26,9 +26,9 @@ elseif NumDynamics>1
     end
 end
 
-options=setDMIoptions;
 NumChannel=input("How many channels used during acquisition of the dataset? (ie: 1,2,3...) \n If multichannel dataset, you will select noise scan: ");
 if NumChannel>1
+    options=setDMIoptions(NumChannel);
     [DatasetNoiseName, DatasetNoisepath]=uigetfile('*.data');
     cd(DatasetNoisepath)
     Dataset.Noise=NoiseCovarianceGeneration(DatasetNoiseName);
@@ -38,6 +38,7 @@ if NumChannel>1
     clear DatasetNoiseName DatasetNoisepath Dataset.Noise
 elseif NumChannel==1
     disp('Single channel dataset')
+    options=setDMIoptions(1);
 elseif NumChannel==0
     disp('Number of coils is set to zero. Exiting script')
     return
@@ -50,6 +51,20 @@ for k=1:NumDynamics
     eval(['Dataset.Dyn',num2str(k),'=BodyDMIRecon(''',DatasetDynName{k,1},''',options);'])
     if k==1 && NumChannel>1
         options.Referencemap=Dataset.Dyn1.RoemerSens_map;disp('First dynamic is used as baseline/Coil reference scan.')
+        figure('Name','Coil array sensitivity map','WindowState','maximized')
+        imagescn(abs(permute(squeeze(options.Referencemap(:,:,:,round(size(options.Referencemap,4)/2))),[2 3 1])))
+        options=setDMIoptions(NumChannel, options);
+        if ~isequal(numel(options.UsedCh),NumChannel)
+            tempReferencemap = zeros(size(options.Referencemap));
+            tempReferencemap(options.UsedCh,:) = options.Referencemap(options.UsedCh,:);
+            options.Referencemap = tempReferencemap;
+            clear tempReferencemap
+            eval(['Dataset.Dyn',num2str(k),'=BodyDMIRecon(''',DatasetDynName{k,1},''',options);'])
+            options.Referencemap=Dataset.Dyn1.RoemerSens_map;disp('First dynamic is used as baseline/Coil reference scan.')
+            figure('Name','Coil array sensitivity map(Discarded coils are set to zero)','WindowState','maximized')
+            imagescn(abs(permute(squeeze(options.Referencemap(:,:,:,round(size(options.Referencemap,4)/2))),[2 3 1])))
+
+        end
     end
 end
 clear k;
@@ -60,18 +75,31 @@ clear Dataset DatasetName DatasetDynName NumChannel NumDynamics startFolder;
 
 %%
 
-function opt=setDMIoptions()
+function opt=setDMIoptions(NumChannel, opt)
 % Set default acquisition and experiment options
-opt.TE=1.38; % Echo time
-opt.BW=2750; % Acquisition bandwidth
-opt.NoiseCov=0; % Default Noisecovariance
-opt.ReferenceLocation=0; % Default water reference signal location
-opt.Referencemap=0; % Default Roemer reference map. Zero inut generate map from the data itself.
-prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):'};
-dlgtitle = 'BodyDMI - Acquisition parameter options';
-fieldsize = [1 90; 1 90];
-definput = {'1.38','2750'};
-answers= inputdlg(prompt,dlgtitle,fieldsize,definput);
-opt.TE=str2double(answers{1});
-opt.BW=str2double(answers{2});
+if nargin < 2
+    opt.TE=1.38; % Echo time
+    opt.BW=2750; % Acquisition bandwidth
+    opt.NoiseCov=0; % Default Noisecovariance
+    opt.ReferenceLocation=0; % Default water reference signal location
+    opt.Referencemap=0; % Default Roemer reference map. Zero inut generate map from the data itself.
+end
+if NumChannel == 1
+    prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):'};
+    dlgtitle = 'BodyDMI - Acquisition parameter options';
+    fieldsize = [1 90; 1 90];
+    definput = {'1.38','2750'};
+    answers= inputdlg(prompt,dlgtitle,fieldsize,definput);
+    opt.TE=str2double(answers{1});
+    opt.BW=str2double(answers{2});
+else
+    prompt = {'Echo time(ms):','Acquisition bandwidth(Hz):','Channels to be use in Recon'};
+    dlgtitle = 'BodyDMI - Acquisition and Reconstruction parameter options';
+    fieldsize = [1 90; 1 90; 1 90];
+    definput = {'1.38','2750', num2str(1:NumChannel)};
+    answers= inputdlg(prompt,dlgtitle,fieldsize,definput);
+    opt.TE=str2double(answers{1});
+    opt.BW=str2double(answers{2});
+    opt.UsedCh=str2double(extract(answers{3}, digitsPattern));
+end
 end
